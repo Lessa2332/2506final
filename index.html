@@ -1,182 +1,300 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> Дешифратор</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>🏁 Дешифратор | ОЛІМП</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#FFD700; --gold2:#FFA500;
+    --blue:#0085C7; --yellow:#F4C300; --black:#111; --green:#009F6B; --red:#DF0024;
+    --bg:#06060A; --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;font-family:'Inter',sans-serif;background:var(--bg);overflow:hidden;touch-action:manipulation;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(255,215,0,0.10) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(0,133,199,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
-    body {
-      background: #0d0d0d;
-      color: #0ff;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
+  .screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:clamp(14px,4vw,40px);z-index:1;overflow-y:auto;}
+  .screen.active{display:flex;}
 
-    h1 {
-      text-shadow: 0 0 15px #0ff;
-      margin-bottom: 10px;
-      text-align: center;
-      font-size: 6vw;
-      max-width: 90%;
-    }
+  /* ═══ INTRO ═══ */
+  #s-intro{text-align:center;}
+  .rings-row{display:flex;gap:clamp(4px,1vw,10px);justify-content:center;margin-bottom:clamp(14px,3vh,26px);}
+  .ring-dot{width:clamp(32px,6.5vw,58px);height:clamp(32px,6.5vw,58px);border-radius:50%;border:clamp(4px,.8vw,7px) solid transparent;animation:ringPop 2.4s ease-in-out infinite;}
+  .ring-dot:nth-child(1){border-color:#0085C7;animation-delay:0s;}
+  .ring-dot:nth-child(2){border-color:#F4C300;animation-delay:.18s;}
+  .ring-dot:nth-child(3){border-color:#333;animation-delay:.36s;}
+  .ring-dot:nth-child(4){border-color:#009F6B;animation-delay:.54s;}
+  .ring-dot:nth-child(5){border-color:#DF0024;animation-delay:.72s;}
+  @keyframes ringPop{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .intro-emoji{font-size:clamp(50px,12vw,110px);margin-bottom:clamp(8px,1.8vh,16px);animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  .intro-title{font-family:'Unbounded',sans-serif;font-size:clamp(24px,5.5vw,64px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:clamp(8px,1.8vh,16px);}
+  .intro-title span{color:var(--gold);}
+  .intro-sub{font-size:clamp(13px,2vw,20px);color:rgba(255,255,255,.7);max-width:540px;line-height:1.6;margin-bottom:clamp(18px,3.5vh,32px);}
 
-    .container {
-      background: #111;
-      border: 2px solid #0ff;
-      border-radius: 20px;
-      padding: 25px 20px;
-      box-shadow: 0 0 30px #0ff;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      user-select: text;
-    }
+  /* Stations legend */
+  .stations{display:flex;flex-direction:column;gap:clamp(7px,1.3vh,12px);width:100%;max-width:500px;margin-bottom:clamp(18px,3.5vh,32px);}
+  .st-row{display:flex;align-items:center;gap:clamp(10px,2vw,18px);background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.10);border-radius:clamp(10px,1.8vw,16px);padding:clamp(10px,1.8vw,16px) clamp(14px,2.5vw,22px);}
+  .st-dot{width:clamp(16px,3vw,26px);height:clamp(16px,3vw,26px);border-radius:50%;flex-shrink:0;}
+  .st-name{font-size:clamp(12px,1.8vw,17px);color:rgba(255,255,255,.8);flex:1;}
+  .st-letter{font-family:'Unbounded',sans-serif;font-size:clamp(14px,2.2vw,20px);font-weight:700;color:var(--gold);}
 
-    input, button {
-      background: #000;
-      border: 2px solid #0ff;
-      color: #0ff;
-      font-size: 4vw;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 10px;
-      width: 100%;
-    }
+  .btn-go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Unbounded',sans-serif;font-size:clamp(14px,2vw,19px);font-weight:700;padding:clamp(13px,2.2vh,21px) clamp(30px,5.5vw,65px);border:none;border-radius:100px;cursor:pointer;box-shadow:0 8px 40px rgba(255,215,0,0.35);transition:all .2s;letter-spacing:.04em;}
+  .btn-go:hover{transform:translateY(-2px);box-shadow:0 14px 50px rgba(255,215,0,0.5);}
+  .btn-go:active{transform:scale(0.96);}
 
-    @media (min-width: 768px) {
-      input, button {
-        font-size: 18px;
-      }
+  /* ═══ DECODER ═══ */
+  #s-decoder{text-align:center;justify-content:flex-start;padding-top:clamp(16px,3vh,30px);}
+  .dec-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,3.5vw,36px);font-weight:900;color:var(--gold);margin-bottom:clamp(6px,1.2vh,12px);}
+  .dec-sub{font-size:clamp(12px,1.8vw,16px);color:rgba(255,255,255,.6);margin-bottom:clamp(14px,2.5vh,24px);}
 
-      h1 {
-        font-size: 32px;
-      }
-    }
+  /* Letter slots */
+  .slots{display:flex;gap:clamp(8px,1.5vw,16px);justify-content:center;margin-bottom:clamp(18px,3.5vh,32px);flex-wrap:wrap;}
+  .slot{
+    width:clamp(52px,11vw,88px);height:clamp(64px,13vw,108px);
+    background:rgba(255,255,255,.05);border:2px solid rgba(255,215,0,.2);border-radius:clamp(10px,2vw,18px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    position:relative;transition:all .3s;
+  }
+  .slot.filled{border-color:var(--gold);background:rgba(255,215,0,.08);box-shadow:0 0 20px rgba(255,215,0,.2);}
+  .slot.correct{border-color:#00E676;background:rgba(0,230,118,.10);box-shadow:0 0 24px rgba(0,230,118,.3);}
+  .slot-letter{font-family:'Unbounded',sans-serif;font-size:clamp(22px,5vw,44px);font-weight:900;color:var(--gold);line-height:1;}
+  .slot-st{font-size:clamp(9px,1.2vw,12px);color:rgba(255,255,255,.4);letter-spacing:.08em;}
+  .slot-check{position:absolute;top:-6px;right:-6px;font-size:clamp(14px,2.2vw,20px);display:none;}
+  .slot.correct .slot-check{display:block;}
 
-    button {
-      cursor: pointer;
-      transition: background 0.3s, color 0.3s;
-    }
+  /* Code input */
+  .code-wrap{width:100%;max-width:500px;margin-bottom:clamp(14px,2.5vh,22px);}
+  .code-label{font-size:clamp(12px,1.8vw,16px);color:rgba(255,255,255,.6);margin-bottom:clamp(8px,1.5vh,12px);}
+  .code-input{
+    width:100%;background:rgba(255,255,255,.06);border:2px solid rgba(255,215,0,.3);border-radius:clamp(10px,1.8vw,16px);
+    padding:clamp(14px,2.5vw,22px) clamp(16px,3vw,28px);
+    font-family:'Unbounded',sans-serif;font-size:clamp(20px,4vw,36px);font-weight:700;
+    color:var(--gold);text-align:center;letter-spacing:.3em;text-transform:uppercase;
+    outline:none;transition:all .2s;
+  }
+  .code-input:focus{border-color:var(--gold);background:rgba(255,215,0,.08);box-shadow:0 0 30px rgba(255,215,0,.15);}
+  .code-input::placeholder{color:rgba(255,215,0,.3);letter-spacing:.2em;}
 
-    button:hover {
-      background: #0ff;
-      color: #000;
-      box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
-    }
+  .btn-decode{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-family:'Unbounded',sans-serif;font-size:clamp(14px,2vw,18px);font-weight:700;padding:clamp(13px,2.2vh,20px) clamp(28px,5vw,60px);border:none;border-radius:100px;cursor:pointer;box-shadow:0 6px 28px rgba(255,215,0,.3);transition:all .2s;margin-bottom:clamp(14px,2.5vh,22px);}
+  .btn-decode:hover{transform:translateY(-2px);}
+  .btn-decode:active{transform:scale(0.97);}
 
-    .result {
-      margin-top: 20px;
-      font-size: 22px;
-      min-height: 40px;
-      text-shadow: 0 0 10px #0ff;
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
+  /* Decode animation */
+  .decoded-wrap{width:100%;max-width:500px;min-height:clamp(50px,10vh,80px);display:flex;align-items:center;justify-content:center;}
+  .decoded-text{font-family:'Unbounded',sans-serif;font-size:clamp(32px,8vw,72px);font-weight:900;color:var(--gold);letter-spacing:.15em;text-shadow:0 0 40px rgba(255,215,0,.5);animation:glowPulse 2s ease-in-out infinite;}
+  @keyframes glowPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,.4);}50%{text-shadow:0 0 50px rgba(255,215,0,.8);}}
+  .error-text{font-size:clamp(14px,2vw,18px);color:#FF6B6B;}
 
-    .decoding-effect {
-      font-family: monospace;
-      letter-spacing: 2px;
-      color: #0ff;
-      text-shadow:
-        0 0 5px #0ff,
-        0 0 10px #0ff,
-        0 0 20px #0ff,
-        0 0 40px #0ff;
-    }
-  </style>
+  /* ═══ WIN ═══ */
+  #s-win{text-align:center;}
+  .win-emoji{font-size:clamp(64px,15vw,130px);animation:popIn .6s cubic-bezier(.36,.07,.19,.97) both;}
+  @keyframes popIn{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
+  .win-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,5vw,56px);font-weight:900;color:var(--gold);margin:clamp(12px,2.5vh,22px) 0;text-shadow:0 4px 30px rgba(255,215,0,.4);}
+  .win-word{font-family:'Unbounded',sans-serif;font-size:clamp(36px,9vw,88px);font-weight:900;color:var(--white);letter-spacing:.2em;margin-bottom:clamp(14px,2.5vh,22px);text-shadow:0 0 60px rgba(255,215,0,.5);}
+  .win-sub{font-size:clamp(13px,2vw,20px);color:rgba(255,255,255,.8);max-width:520px;line-height:1.6;margin-bottom:clamp(18px,3.5vh,32px);}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .c-dot{position:absolute;width:clamp(6px,1.2vw,12px);height:clamp(6px,1.2vw,12px);border-radius:50%;animation:fall linear forwards;}
+  @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(105vh) rotate(720deg);opacity:0;}}
+  .btn-restart{background:rgba(255,255,255,.10);color:var(--white);font-family:'Unbounded',sans-serif;font-size:clamp(12px,1.8vw,17px);font-weight:600;padding:clamp(11px,2vh,18px) clamp(22px,4vw,44px);border:1.5px solid rgba(255,255,255,.2);border-radius:100px;cursor:pointer;transition:all .2s;}
+  .btn-restart:hover{background:rgba(255,255,255,.18);}
+</style>
 </head>
 <body>
-  <h1> Дешифратор</h1>
-  <div class="container">
-    <input type="text" id="inputText" placeholder="Введи зашифрований текст..." autocomplete="off" />
-    <button onclick="startDecode()">Розшифрувати</button>
-    <div class="result" id="output"></div>
+
+<div class="confetti" id="confetti"></div>
+
+<!-- INTRO -->
+<div class="screen active" id="s-intro">
+  <div class="rings-row">
+    <div class="ring-dot"></div><div class="ring-dot"></div><div class="ring-dot"></div>
+    <div class="ring-dot"></div><div class="ring-dot"></div>
+  </div>
+  <div class="intro-emoji">🔐</div>
+  <div class="intro-title">Таємний<br><span>Дешифратор</span></div>
+  <div class="intro-sub">Ти пройшов всі станції! Збери закодовані літери та розгадай справжнє слово.</div>
+
+  <div class="stations">
+    <div class="st-row">
+      <div class="st-dot" style="background:#0085C7"></div>
+      <div class="st-name">🔵 Синя — Вітання та Руханка</div>
+      <div class="st-letter">Н</div>
+    </div>
+    <div class="st-row">
+      <div class="st-dot" style="background:#F4C300"></div>
+      <div class="st-name">🟡 Жовта — Спортивні загадки</div>
+      <div class="st-letter">М</div>
+    </div>
+    <div class="st-row">
+      <div class="st-dot" style="background:#222"></div>
+      <div class="st-name">⚫ Чорна — Українські олімпійці</div>
+      <div class="st-letter">Ї</div>
+    </div>
+    <div class="st-row">
+      <div class="st-dot" style="background:#009F6B"></div>
+      <div class="st-name">🟢 Зелена — Здоровий спосіб життя</div>
+      <div class="st-letter">Н</div>
+    </div>
+    <div class="st-row">
+      <div class="st-dot" style="background:#DF0024"></div>
+      <div class="st-name">🔴 Червона — Олімпійські символи</div>
+      <div class="st-letter">Р</div>
+    </div>
   </div>
 
-  <script>
-    const uaUpper = ['А','Б','В','Г','Д','Е','Є','Ж','З','И','І','Ї','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ь','Ю','Я'];
-    const uaLower = uaUpper.map(l => l.toLowerCase());
+  <button class="btn-go" onclick="goTo('s-decoder')">🔑 Розшифрувати!</button>
+</div>
 
-    function shiftChar(char, shift) {
-      let isUpper = false;
-      let index = uaUpper.indexOf(char);
-      if(index !== -1) {
-        isUpper = true;
-      } else {
-        index = uaLower.indexOf(char);
-        if(index === -1) return char; // не українська літера, повертаємо як є
-      }
+<!-- DECODER -->
+<div class="screen" id="s-decoder">
+  <div class="dec-title">🔐 Дешифратор</div>
+  <div class="dec-sub">Введіть 5 літер, які ви зібрали на станціях</div>
 
-      let arr = isUpper ? uaUpper : uaLower;
-      let newIndex = (index + shift + arr.length) % arr.length;
-      return arr[newIndex];
+  <div class="slots" id="slots">
+    <div class="slot" id="slot-0"><div class="slot-letter" id="sl-0">_</div><div class="slot-st">Синя</div><div class="slot-check">✅</div></div>
+    <div class="slot" id="slot-1"><div class="slot-letter" id="sl-1">_</div><div class="slot-st">Жовта</div><div class="slot-check">✅</div></div>
+    <div class="slot" id="slot-2"><div class="slot-letter" id="sl-2">_</div><div class="slot-st">Чорна</div><div class="slot-check">✅</div></div>
+    <div class="slot" id="slot-3"><div class="slot-letter" id="sl-3">_</div><div class="slot-st">Зелена</div><div class="slot-check">✅</div></div>
+    <div class="slot" id="slot-4"><div class="slot-letter" id="sl-4">_</div><div class="slot-st">Червона</div><div class="slot-check">✅</div></div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-label">✍️ Введіть кодове слово (5 літер):</div>
+    <input class="code-input" id="code-input" type="text" maxlength="5" placeholder="_ _ _ _ _" autocomplete="off" autocorrect="off" spellcheck="false" oninput="onInput(this)">
+  </div>
+
+  <button class="btn-decode" onclick="decode()">⚡ Розшифрувати!</button>
+
+  <div class="decoded-wrap">
+    <div id="decode-result"></div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="screen" id="s-win">
+  <div class="win-emoji">🏅</div>
+  <div class="win-title">Місія виконана!</div>
+  <div class="win-word" id="win-word">ОЛІМП</div>
+  <div class="win-sub">Ви розгадали кодове слово! <strong style="color:var(--gold)">ОЛІМП</strong> — священне місце в Греції, де народились Олімпійські ігри. Саме тут понад 2700 років тому розпочалася традиція, яка об'єднує весь світ!</div>
+  <div class="rings-row" style="margin-bottom:clamp(16px,3vh,28px)">
+    <div class="ring-dot"></div><div class="ring-dot"></div><div class="ring-dot"></div>
+    <div class="ring-dot"></div><div class="ring-dot"></div>
+  </div>
+  <button class="btn-restart" onclick="restart()">🔄 Почати знову</button>
+</div>
+
+<script>
+// Зашифровані літери (збираються на станціях) та відповідні їм розшифровані
+const ENCODED = ['Н','М','Ї','Н','Р'];
+const DECODED = ['О','Л','І','М','П'];
+const ANSWER = 'ОЛІМП'; // використовується для перевірки після дешифрування
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function onInput(el){
+  const val = el.value.toUpperCase().replace(/[^А-ЯІЇЄҐA-Z]/g,'');
+  el.value = val;
+  // Оновлюємо слоти без підсвічування правильності (клас 'correct' не додаємо)
+  for(let i=0;i<5;i++){
+    const sl = document.getElementById('sl-'+i);
+    const slot = document.getElementById('slot-'+i);
+    if(val[i]){
+      sl.textContent = val[i];
+      slot.classList.add('filled');
+      // Прибираємо автоматичне підсвічування правильності
+      slot.classList.remove('correct');
+    } else {
+      sl.textContent = '_';
+      slot.classList.remove('filled','correct');
     }
+  }
+  document.getElementById('decode-result').innerHTML='';
+}
 
-    function randomChar() {
-      const allChars = uaUpper.concat(uaLower);
-      return allChars[Math.floor(Math.random() * allChars.length)];
+function decode(){
+  const val = document.getElementById('code-input').value.toUpperCase().trim();
+  const res = document.getElementById('decode-result');
+
+  if(val.length < 5){
+    res.innerHTML = `<div class="error-text">⚠️ Введіть всі 5 літер!</div>`;
+    return;
+  }
+
+  // Перевіряємо, чи кожна літера відповідає закодованій
+  let valid = true;
+  let errorPos = -1;
+  for(let i=0;i<5;i++){
+    if(val[i] !== ENCODED[i]){
+      valid = false;
+      errorPos = i+1;
+      break;
     }
+  }
 
-    function decodingEffect(finalText, outputElem, duration = 5000) {
-      const length = finalText.length;
-      let start = null;
+  if(!valid){
+    res.innerHTML = `<div class="error-text">❌ Невірна літера на позиції ${errorPos}. Спробуйте ще раз!</div>`;
+    return;
+  }
 
-      return new Promise((resolve) => {
-        function step(timestamp) {
-          if (!start) start = timestamp;
-          const elapsed = timestamp - start;
-          const progress = Math.min(elapsed / duration, 1);
+  // Якщо всі літери вірні, формуємо розшифроване слово
+  const result = DECODED.join(''); // "ОЛІМП"
 
-          let displayText = '';
-          for(let i = 0; i < length; i++) {
-            if (i < Math.floor(progress * length)) {
-              displayText += finalText[i];
-            } else {
-              displayText += randomChar();
-            }
-          }
-
-          outputElem.textContent = displayText;
-          outputElem.classList.add('decoding-effect');
-
-          if(progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            outputElem.classList.remove('decoding-effect');
-            resolve();
-          }
-        }
-        requestAnimationFrame(step);
-      });
+  // Анімація дешифрування (можна показати поступове відкриття)
+  let i = 0;
+  const chars = 'АБВГДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ';
+  const interval = setInterval(()=>{
+    let display = '';
+    for(let j=0;j<5;j++){
+      if(j < i) display += result[j];
+      else display += chars[Math.floor(Math.random()*chars.length)];
     }
-
-    async function startDecode() {
-      const input = document.getElementById('inputText').value;
-      const outputElem = document.getElementById('output');
-
-      if(input.trim() === '') {
-        outputElem.textContent = 'Введіть зашифрований текст!';
-        return;
-      }
-
-      let shift = -1;
-      let result = '';
-      for(let ch of input) {
-        result += shiftChar(ch, shift);
-      }
-
-      await decodingEffect(result, outputElem, 5000);
+    res.innerHTML = `<div class="decoded-text">${display}</div>`;
+    i++;
+    if(i > 5){
+      clearInterval(interval);
+      // Показуємо остаточний результат
+      res.innerHTML = `<div class="decoded-text">${result}</div>`;
+      // Перемога!
+      setTimeout(()=>{
+        launchConfetti();
+        goTo('s-win');
+      }, 500);
     }
-  </script>
+  }, 100);
+}
+
+function launchConfetti(){
+  const wrap=document.getElementById('confetti');
+  wrap.innerHTML='';
+  const colors=['#FFD700','#0085C7','#DF0024','#009F6B','#F4C300','#FFFFFF'];
+  for(let i=0;i<60;i++){
+    const d=document.createElement('div');
+    d.className='c-dot';
+    d.style.left=Math.random()*100+'%';
+    d.style.background=colors[Math.floor(Math.random()*colors.length)];
+    d.style.animationDuration=(1.5+Math.random()*2.5)+'s';
+    d.style.animationDelay=Math.random()*1.5+'s';
+    d.style.width=d.style.height=(6+Math.random()*10)+'px';
+    d.style.borderRadius=Math.random()>.5?'50%':'2px';
+    wrap.appendChild(d);
+  }
+  setTimeout(()=>wrap.innerHTML='',5000);
+}
+
+function restart(){
+  document.getElementById('code-input').value='';
+  document.getElementById('decode-result').innerHTML='';
+  for(let i=0;i<5;i++){
+    document.getElementById('sl-'+i).textContent='_';
+    document.getElementById('slot-'+i).className='slot';
+  }
+  goTo('s-intro');
+}
+</script>
 </body>
 </html>
