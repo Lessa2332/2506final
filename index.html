@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title> Дешифратор</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0d0d0d;
+      color: #0ff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-shadow: 0 0 15px #0ff;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 6vw;
+      max-width: 90%;
+    }
+
+    .container {
+      background: #111;
+      border: 2px solid #0ff;
+      border-radius: 20px;
+      padding: 25px 20px;
+      box-shadow: 0 0 30px #0ff;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      user-select: text;
+    }
+
+    input, button {
+      background: #000;
+      border: 2px solid #0ff;
+      color: #0ff;
+      font-size: 4vw;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      input, button {
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    button:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 22px;
+      min-height: 40px;
+      text-shadow: 0 0 10px #0ff;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .decoding-effect {
+      font-family: monospace;
+      letter-spacing: 2px;
+      color: #0ff;
+      text-shadow:
+        0 0 5px #0ff,
+        0 0 10px #0ff,
+        0 0 20px #0ff,
+        0 0 40px #0ff;
+    }
+  </style>
+</head>
+<body>
+  <h1> Дешифратор</h1>
+  <div class="container">
+    <input type="text" id="inputText" placeholder="Введи зашифрований текст..." autocomplete="off" />
+    <button onclick="startDecode()">Розшифрувати</button>
+    <div class="result" id="output"></div>
+  </div>
+
+  <script>
+    const uaUpper = ['А','Б','В','Г','Д','Е','Є','Ж','З','И','І','Ї','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ь','Ю','Я'];
+    const uaLower = uaUpper.map(l => l.toLowerCase());
+
+    function shiftChar(char, shift) {
+      let isUpper = false;
+      let index = uaUpper.indexOf(char);
+      if(index !== -1) {
+        isUpper = true;
+      } else {
+        index = uaLower.indexOf(char);
+        if(index === -1) return char; // не українська літера, повертаємо як є
+      }
+
+      let arr = isUpper ? uaUpper : uaLower;
+      let newIndex = (index + shift + arr.length) % arr.length;
+      return arr[newIndex];
+    }
+
+    function randomChar() {
+      const allChars = uaUpper.concat(uaLower);
+      return allChars[Math.floor(Math.random() * allChars.length)];
+    }
+
+    function decodingEffect(finalText, outputElem, duration = 5000) {
+      const length = finalText.length;
+      let start = null;
+
+      return new Promise((resolve) => {
+        function step(timestamp) {
+          if (!start) start = timestamp;
+          const elapsed = timestamp - start;
+          const progress = Math.min(elapsed / duration, 1);
+
+          let displayText = '';
+          for(let i = 0; i < length; i++) {
+            if (i < Math.floor(progress * length)) {
+              displayText += finalText[i];
+            } else {
+              displayText += randomChar();
+            }
+          }
+
+          outputElem.textContent = displayText;
+          outputElem.classList.add('decoding-effect');
+
+          if(progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            outputElem.classList.remove('decoding-effect');
+            resolve();
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    async function startDecode() {
+      const input = document.getElementById('inputText').value;
+      const outputElem = document.getElementById('output');
+
+      if(input.trim() === '') {
+        outputElem.textContent = 'Введіть зашифрований текст!';
+        return;
+      }
+
+      let shift = -1;
+      let result = '';
+      for(let ch of input) {
+        result += shiftChar(ch, shift);
+      }
+
+      await decodingEffect(result, outputElem, 5000);
+    }
+  </script>
+</body>
+</html>
